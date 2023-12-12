@@ -297,6 +297,9 @@ final class ConfigureCommand extends Command
                 continue;
             }
 
+            $projectAttribute = $this->trimForXml($projectAttribute);
+            $projectValue = $this->trimForXml($projectValue);
+
             if ($projectElement === null) {
                 $elements = $xml->xpath('/ns:guides/ns:project');
                 if ($elements === []) {
@@ -353,6 +356,9 @@ final class ConfigureCommand extends Command
                 continue;
             }
 
+            $guideAttribute = $this->trimForXml($guideAttribute);
+            $guideValue = $this->trimForXml($guideValue);
+
             if (isset($guides[0]) && $guides[0] instanceof \SimpleXMLElement) {
                 if (isset($guides[0][$guideAttribute])) {
                     $output->writeln(sprintf('Updating <info>guides[%s]</info> = <info>%s</info>', $guideAttribute, $guideValue));
@@ -389,6 +395,9 @@ final class ConfigureCommand extends Command
             }
 
             foreach ($inventoryAttributes as $inventoryId => $inventoryUrl) {
+                $inventoryId = $this->trimForXml($inventoryId);
+                $inventoryUrl = $this->trimForXml($inventoryUrl);
+
                 // Check if an inventory with the id already exists...
                 $elements = $xml->xpath(sprintf('/ns:guides/ns:inventory[@id="%s"]', $inventoryId));
                 if ($elements === []) {
@@ -451,6 +460,10 @@ final class ConfigureCommand extends Command
 
             $classIndex = 0;
             foreach ($extensionAttributes as $extensionAttribute => $extensionAttributeValue) {
+                $extensionAttribute = $this->trimForXml($extensionAttribute);
+                $extensionAttributeValue = $this->trimForXml($extensionAttributeValue);
+                $extensionAttributeClasses[$classIndex] = $this->trimForXml($extensionAttributeClasses[$classIndex]);
+
                 // Check if an extension with the id already exists...
                 $elements = $xml->xpath(sprintf('/ns:guides/ns:extension[@class="%s"]', $extensionAttributeClasses[$classIndex]));
                 if ($elements === []) {
@@ -499,6 +512,7 @@ final class ConfigureCommand extends Command
         }
 
         foreach ($outputFormats as $outputFormat) {
+            $outputFormat = $this->trimForXml($outputFormat);
             $elements = $xml->xpath(sprintf('/ns:guides/ns:output-format[text()="%s"]', $outputFormat));
             if ($elements === []) {
                 if ($output->isVerbose()) {
@@ -591,5 +605,10 @@ final class ConfigureCommand extends Command
         }
 
         return true;
+    }
+
+    private function trimForXml(string $string): string
+    {
+        return trim($string, '"\'');
     }
 }
